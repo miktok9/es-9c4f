@@ -3,33 +3,47 @@ Generate new topics using AI when topics.txt runs low.
 
 This script:
 1. Checks if topics.txt has enough topics (< 50 remaining)
-2. Generates 100 new unique topics using Pollinations AI
+2. Generates 100 new unique topics using Pollinations AI paid API
 3. Appends them to topics.txt
 """
 
+import os
 import requests
 from urllib.parse import quote
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def generate_new_topics(count=100):
-    """Generate new Portuguese topics about ancient women."""
-    
-    base_url = "https://text.pollinations.ai/"
+    """Generate new Portuguese topics about ancient women using paid Pollinations API."""
+
+    api_key = os.getenv("POLLINATIONS_API_KEY")
+    if not api_key:
+        raise ValueError("POLLINATIONS_API_KEY environment variable is required for paid API")
+
     system = (
         "Você é um historiador especializado na história das mulheres nas civilizações antigas. "
-        f"Crie uma lista de {count} tópicos únicos em português. "
+        f"{count} tópicos únicos em português. "
         "Cada tópico deve ser curto (5-10 palavras), interessante e educativo. "
         "Os tópicos devem cobrir: as leis, os costumes, as mulheres famosas, as profissões, a religião, a cultura, a arte. "
-        "Produza APENAS os tópicos, um por linha, sem números ou marcadores."
+        "SADE PRODUZA os tópicos, cada um em uma linha, sem números ou marcadores."
     )
-    
+
     prompt = f"Crie {count} tópicos únicos sobre mulheres nas civilizações antigas"
-    
-    url = base_url + quote(prompt)
-    params = {"model": "openai", "temperature": 0.9, "system": system}
-    
-    print(f"[topics] Generating {count} new Portuguese topics...")
-    r = requests.get(url, params=params, timeout=120)
+
+    url = f"https://gen.pollinations.ai/text/{quote(prompt)}"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    params = {
+        "model": "nova-fast",
+        "temperature": 0.9,
+        "system": system,
+        "json": False
+    }
+
+    print(f"[topics] Generating {count} new topics...")
+    r = requests.get(url, headers=headers, params=params, timeout=120)
     r.raise_for_status()
     
     # Parse topics

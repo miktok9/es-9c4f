@@ -17,7 +17,7 @@ load_dotenv()
 NUM_IMAGES = 8  # 8 unique scenes (faster generation)
 IMAGE_WIDTH = 1080
 IMAGE_HEIGHT = 1920
-IMAGE_MODEL = "klein"
+IMAGE_MODEL = "flux"
 
 STORY_MAX_WORDS = 130
 
@@ -546,3 +546,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -17,21 +17,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def generate_new_topics(count=100):
-    """Generate new Portuguese topics about ancient women using paid Pollinations API."""
+    """Generate new Spanish topics about ancient women using paid Pollinations API."""
 
     api_key = os.getenv("POLLINATIONS_API_KEY")
     if not api_key:
         raise ValueError("POLLINATIONS_API_KEY environment variable is required for paid API")
 
     system = (
-        "Você é um historiador especializado na história das mulheres nas civilizações antigas. "
-        f"{count} tópicos únicos em português. "
-        "Cada tópico deve ser curto (5-10 palavras), interessante e educativo. "
-        "Os tópicos devem cobrir: as leis, os costumes, as mulheres famosas, as profissões, a religião, a cultura, a arte. "
-        "SADE PRODUZA os tópicos, cada um em uma linha, sem números ou marcadores."
+        "Eres un historiador especializado en la historia de las mujeres en las civilizaciones antiguas. "
+        f"Crea {count} tópicos únicos en español. "
+        "Cada tópico debe ser corto (5-10 palabras), interesante y educativo. "
+        "Los tópicos deben incluir: leyes, costumbres, mujeres famosas, profesiones, religión, cultura, arte. "
+        "SOLO PRODUCIR los tópicos, cada uno en una línea, sin números ni viñetas."
     )
 
-    prompt = f"Crie {count} tópicos únicos sobre mulheres nas civilizações antigas"
+    prompt = f"Crea {count} tópicos únicos sobre mujeres en las civilizaciones antiguas"
 
     url = f"https://gen.pollinations.ai/text/{quote(prompt)}"
     headers = {"Authorization": f"Bearer {api_key}"}
@@ -89,7 +89,7 @@ def check_and_update_topics():
             for topic in new_topics:
                 f.write(f"{topic}\n")
         
-        print(f"[topics] Added {len(new_topics)} new Portuguese topics!")
+        print(f"[topics] Added {len(new_topics)} new Spanish topics!")
         print(f"[topics] Total topics now: {len(existing_topics) + len(new_topics)}")
     else:
         print(f"[topics] Enough topics available ({len(existing_topics)})")

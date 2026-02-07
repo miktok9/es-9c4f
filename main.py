@@ -17,7 +17,7 @@ load_dotenv()
 NUM_IMAGES = 8  # 8 unique scenes (faster generation)
 IMAGE_WIDTH = 1080
 IMAGE_HEIGHT = 1920
-IMAGE_MODEL = "flux"
+IMAGE_MODEL = "klein"
 
 STORY_MAX_WORDS = 130
 
@@ -54,26 +54,35 @@ def choose_topic_for_today():
     topics_file = Path(TOPICS_FILE)
     used_topics_file = Path("used_topics.txt")
     
-    # Read available topics
+    # Safety check: if topics are low, generate more now
+    try:
+        from generate_topics import check_and_update_topics
+        check_and_update_topics()
+    except ImportError:
+        print("[topics] Warning: generate_topics.py not found, skipping auto-update")
+    except Exception as e:
+        print(f"[topics] Warning: auto-update failed: {e}")
+
+    # Re-read available topics after potential update
     with open(topics_file, "r", encoding="utf-8") as f:
         topics = [line.strip() for line in f if line.strip()]
     
     if not topics:
-        raise Exception("No topics available! Run generate_topics.py first.")
+        raise Exception("No topics available! Even after attempt to generate new ones.")
     
-    # Choose topic based on date (deterministic)
-    today = datetime.date.today()
-    selected_topic = topics[today.toordinal() % len(topics)]
+    # Always pick the first topic
+    selected_topic = topics[0]
     
     # Mark topic as used
     with open(used_topics_file, "a", encoding="utf-8") as f:
         f.write(f"{selected_topic}\n")
     
     # Remove used topic from topics.txt
-    remaining_topics = [t for t in topics if t != selected_topic]
+    remaining_topics = topics[1:]
     with open(topics_file, "w", encoding="utf-8") as f:
         for topic in remaining_topics:
             f.write(f"{topic}\n")
+
     
     print(f"[topics] Selected: {selected_topic}")
     print(f"[topics] Remaining topics: {len(remaining_topics)}")
@@ -161,28 +170,28 @@ def generate_image(scene: str, idx: int) -> Path:
     # Create unique seed for each image based on scene content + index
     seed = hash(scene + str(idx)) % 1000000
     
-    # Build high-quality photorealistic prompt optimized for flux model
+    # Build high-quality photorealistic prompt optimized for flux/klein model
     prompt = (
-        f"stunningly beautiful woman from ancient civilization, {scene}, "
-        f"hyper-realistic portrait, extremely detailed facial features, "
-        f"intricate traditional ancient clothing with rich textures, "
-        f"professional studio lighting, dramatic shadows and highlights, "
-        f"RAW photography, photorealistic, 8K resolution, ultra-high detail, "
-        f"sharp focus, depth of field, bokeh, cinematic composition, "
-        f"masterpiece, award-winning photography, volumetric lighting, "
-        f"hyper-detailed skin texture, realistic eyes with catchlights, "
-        f"museum quality art, historical accuracy, elegant and graceful pose, "
-        f"appropriate for all audiences, clean and tasteful"
+        f"Award-winning cinematic photography, stunningly beautiful woman from ancient history, {scene}, "
+        f"National Geographic style portrait, hyper-realistic, extremely detailed facial features, "
+        f"pores and skin texture visible, realistic expressive eyes with perfect catchlights, "
+        f"intricate authentic traditional ancient clothing with rich fabrics and textures, "
+        f"masterful studio lighting with dramatic highlights and soft shadows, "
+        f"shot on 35mm lens, f/1.8, deep depth of field with beautiful bokeh, "
+        f"8K resolution, ultra-high detail, sharp focus, volumetric dust motes, "
+        f"cinematic color grading, masterpiece, photorealistic RAW photo, "
+        f"historically accurate and dignified, elegant posture, "
+        f"museum-quality lighting, no watermarks, professional composition"
     )
     safe_prompt = quote(prompt)
     
     # Using the working configuration - check if images have watermarks
-    url = f"https://image.pollinations.ai/prompt/{safe_prompt}"
+    url = f"https://gen.pollinations.ai/image/{safe_prompt}"
     headers = {"Authorization": f"Bearer {os.getenv('POLLINATIONS_API_KEY')}"}
     params = {
         "width": IMAGE_WIDTH,
         "height": IMAGE_HEIGHT,
-        "model": "flux",  # Use flux model
+        "model": IMAGE_MODEL,  # Use klein model
         "seed": seed,
         "safe": True,  # Enable strict content filtering to prevent NSFW (boolean)
         "nologo": True,  # Explicitly request no watermarks

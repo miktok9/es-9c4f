@@ -1,8 +1,6 @@
 name: Daily Auto Shorts with Multi-Platform Upload
 
 on:
-  schedule:
-    - cron: "0 18 * * *"     # 6:00 PM UTC (daily at 6:00 PM)
   workflow_dispatch:
 
 jobs:
@@ -45,7 +43,7 @@ jobs:
       env:
         POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
       run: |
-        python main.py
+        $env:GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}\n        GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}\n      run: |\n        python main.py
 
     - name: Upload to all platforms
       env:
@@ -80,6 +78,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add topics.txt used_topics.txt
+        git add topics.txt used_images.json 2>/dev/null || true used_topics.txt
         git commit -m "Update topics: $(date)" || echo "No changes to commit"
         git push
+

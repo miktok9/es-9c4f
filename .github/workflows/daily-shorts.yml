@@ -23,21 +23,14 @@ jobs:
         sudo apt-get install -y ffmpeg
 
     - name: Cache Vosk Model
-      uses: actions/cache@v3
       with:
-        path: vosk-model-small-pt-0.3
-        key: vosk-pt-model-${{ runner.os }}
+        path: vosk-model-small-es-0.42
+        key: vosk-es-model-${{ runner.os }}
 
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Check and generate topics if needed
-      env:
-        POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
-      run: |
-        python generate_topics.py
 
     - name: Generate daily short video
       env:

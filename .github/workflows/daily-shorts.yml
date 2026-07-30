@@ -23,6 +23,7 @@ jobs:
         sudo apt-get install -y ffmpeg
 
     - name: Cache Vosk Model
+      uses: actions/cache@v3
       with:
         path: vosk-model-small-es-0.42
         key: vosk-es-model-${{ runner.os }}
@@ -63,7 +64,8 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add topics.txt used_images.json 2>/dev/null || true used_topics.txt
+        git add topics.txt used_images.json 2>/dev/null
+        git add used_topics.txt 2>/dev/null || true
         git commit -m "Update topics: $(date)" || echo "No changes to commit"
         git push
 
